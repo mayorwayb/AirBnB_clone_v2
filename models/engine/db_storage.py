@@ -33,26 +33,27 @@ class DBStorage:
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
-        """returns a dictionary
-        Return:
-            returns a dictionary of __object
-        """
-        dic = {}
+    """Returns a dictionary of models currently in storage"""
+    dic = {}
+    
+    if cls:
+        # Check if cls is a string and map it to the corresponding class
+        if isinstance(cls, str):
+            cls = globals().get(cls)  # Using globals() to map class names to class objects
         if cls:
-            if type(cls) is str:
-                cls = eval(cls)
-            query = self.__session.query(cls)
+            query = self.__session.query(cls).all()
             for elem in query:
                 key = "{}.{}".format(type(elem).__name__, elem.id)
                 dic[key] = elem
-        else:
-            lista = [State, City, User, Place, Review, Amenity]
-            for clase in lista:
-                query = self.__session.query(clase)
-                for elem in query:
-                    key = "{}.{}".format(type(elem).__name__, elem.id)
-                    dic[key] = elem
-        return (dic)
+    else:
+        classes = [State, City, User, Place, Review, Amenity]
+        for clase in classes:
+            query = self.__session.query(clase).all()
+            for elem in query:
+                key = "{}.{}".format(type(elem).__name__, elem.id)
+                dic[key] = elem
+    
+    return dic
 
     def new(self, obj):
         """add a new element in the table
